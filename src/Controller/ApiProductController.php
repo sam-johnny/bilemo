@@ -24,4 +24,13 @@ class ApiProductController extends AbstractController
             200
         ]);
     }
+
+    #[Route('/api/product/{id}', name: 'app_api_product_show', requirements: ['id' => '[\d]+'],methods: ['GET'])]
+    public function show($id): Response
+    {
+        return $this->json([
+            $this->repository->find($id),
+            200
+        ]);
+    }
 }
