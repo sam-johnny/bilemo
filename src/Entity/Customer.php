@@ -14,15 +14,15 @@ class Customer
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
-    #[Groups("user:read")]
+    #[Groups("user:index")]
     private $id;
 
     #[ORM\Column(type: 'string', length: 255)]
-    #[Groups("user:read")]
+    #[Groups("user:index")]
     private $name;
 
     #[ORM\Column(type: 'string', length: 255)]
-    #[Groups("user:read")]
+    #[Groups("user:index")]
     private $email;
 
     #[ORM\Column(type: 'json')]
