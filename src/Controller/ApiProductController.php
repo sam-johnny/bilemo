@@ -19,18 +19,20 @@ class ApiProductController extends AbstractController
     #[Route('/api/product/index', name: 'app_api_product_index', methods: ['GET'])]
     public function index(): Response
     {
-        return $this->json([
+        return $this->json(
             $this->repository->findAll(),
-            200
-        ]);
+            200,
+            []
+        );
     }
 
     #[Route('/api/product/{id}', name: 'app_api_product_show', requirements: ['id' => '[\d]+'],methods: ['GET'])]
     public function show($id): Response
     {
-        return $this->json([
+        return $this->json(
             $this->repository->find($id),
-            200
-        ]);
+            200,
+            []
+        );
     }
 }
