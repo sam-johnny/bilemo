@@ -11,25 +11,25 @@ class Product
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
-    private $id;
+    private ?int $id;
 
     #[ORM\Column(type: 'string', length: 255)]
-    private $brand;
+    private ?string $brand;
 
     #[ORM\Column(type: 'string', length: 255)]
-    private $model;
+    private ?string $model;
 
     #[ORM\Column(type: 'float')]
-    private $price;
+    private ?float $price;
 
     #[ORM\Column(type: 'string', length: 255)]
-    private $color;
+    private ?string $color;
 
     #[ORM\Column(type: 'text')]
-    private $description;
+    private ?string $description;
 
-    #[ORM\Column(type: 'integer')]
-    private $memoryStorage;
+    #[ORM\Column(type: 'string', length: 255)]
+    private ?string $memoryStorage;
 
     public function getId(): ?int
     {
@@ -96,12 +96,12 @@ class Product
         return $this;
     }
 
-    public function getMemoryStorage(): ?int
+    public function getMemoryStorage(): ?string
     {
         return $this->memoryStorage;
     }
 
-    public function setMemoryStorage(int $memoryStorage): self
+    public function setMemoryStorage(string $memoryStorage): self
     {
         $this->memoryStorage = $memoryStorage;
 
