@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Repository\ProductRepository;
+use JMS\Serializer\SerializerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -11,29 +12,40 @@ use Symfony\Component\Routing\Annotation\Route;
 class ApiProductController extends AbstractController
 {
     private ProductRepository $repository;
+    private SerializerInterface $serializer;
 
-    public function __construct(ProductRepository $repository)
+    public function __construct(
+        ProductRepository   $repository,
+        SerializerInterface $serializer
+    )
     {
         $this->repository = $repository;
+        $this->serializer = $serializer;
     }
 
     #[Route(name: 'app_api_product_collection_get', methods: ['GET'])]
     public function collection(): Response
     {
-        return $this->json(
-            $this->repository->findAll(),
+        $product = $this->repository->findAll();
+        $json = $this->serializer->serialize($product, 'json');
+
+        return new Response(
+            $json,
             Response::HTTP_OK,
-            []
+            ['Content-Type' => 'application/json']
         );
     }
 
-    #[Route('/{id}', name: 'app_api_product_item_get', requirements: ['id' => '[\d]+'],methods: ['GET'])]
-    public function item(): Response
+    #[Route('/{id}', name: 'app_api_product_item_get', requirements: ['id' => '[\d]+'], methods: ['GET'])]
+    public function item(int $id): Response
     {
-        return $this->json(
-            $this->repository->findOneBy([]),
+        $post = $this->repository->find($id);
+        $json = $this->serializer->serialize($post, 'json');
+
+        return new Response(
+            $json,
             Response::HTTP_OK,
-            []
+            ['Content-Type' => 'application/json']
         );
     }
 }

@@ -5,13 +5,14 @@ namespace App\Controller;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use JMS\Serializer\SerializerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Serializer\Exception\NotEncodableValueException;
-use Symfony\Component\Serializer\SerializerInterface;
+
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 #[Route('/api/user')]
@@ -19,16 +20,19 @@ class ApiUserController extends AbstractController
 {
     private UserRepository $repository;
     private EntityManagerInterface $entityManager;
+    private SerializerInterface $serializer;
 
-    /**
-     * @param UserRepository $repository
-     * @param EntityManagerInterface $entityManager
-     */
-    public function __construct(UserRepository $repository, EntityManagerInterface $entityManager)
+    public function __construct(
+        UserRepository         $repository,
+        EntityManagerInterface $entityManager,
+        SerializerInterface    $serializer
+    )
     {
         $this->repository = $repository;
         $this->entityManager = $entityManager;
+        $this->serializer = $serializer;
     }
+
 
     /**
      * @return Response
@@ -36,11 +40,13 @@ class ApiUserController extends AbstractController
     #[Route(name: 'app_api_user_collection_get', methods: ['GET'])]
     public function collection(): Response
     {
-        return $this->json(
-            $this->repository->findAll(),
+        $user = $this->serializer->serialize($this->repository->findAll(), 'json');
+
+        return new Response(
+            $user,
             Response::HTTP_OK,
-            [],
-            ['groups' => 'user:index']);
+            ['Content-Type' => 'application/json'],
+            );
     }
 
     /**
@@ -50,16 +56,16 @@ class ApiUserController extends AbstractController
     #[Route('/{id}', name: 'app_api_user_item_get', requirements: ['id' => '[\d]+'], methods: ['GET'])]
     public function item(int $id): Response
     {
-        return $this->json(
-            $this->repository->find($id),
+        $user = $this->serializer->serialize($this->repository->find($id), 'json');
+
+        return new Response(
+            $user,
             Response::HTTP_OK,
-            [],
-            ['groups' => 'user:index']
+            ['Content-Type' => 'application/json']
         );
     }
 
     /**
-     * @param SerializerInterface $serializer
      * @param Request $request
      * @param ValidatorInterface $validator
      * @param UrlGeneratorInterface $urlGenerator
@@ -67,7 +73,6 @@ class ApiUserController extends AbstractController
      */
     #[Route(name: 'app_api_user_item_post', methods: ['POST'])]
     public function user(
-        SerializerInterface   $serializer,
         Request               $request,
         ValidatorInterface    $validator,
         UrlGeneratorInterface $urlGenerator
@@ -75,7 +80,7 @@ class ApiUserController extends AbstractController
     {
         try {
             /** @var User $user */
-            $user = $serializer->deserialize($request->getContent(), User::class, 'json');
+            $user = $this->serializer->deserialize($request->getContent(), User::class, 'json');
 
             $errors = $validator->validate($user);
 
@@ -86,11 +91,10 @@ class ApiUserController extends AbstractController
             $this->entityManager->persist($user);
             $this->entityManager->flush();
 
-            return $this->json(
-                $user,
+            return new Response(
+                null,
                 Response::HTTP_CREATED,
-                ["Location" => $urlGenerator->generate('app_api_user_item_get', ['id' => $user->getId()])],
-                ['groups' => 'user:index']
+                ["Location" => $urlGenerator->generate('app_api_user_item_get', ['id' => $user->getId()])]
             );
         } catch
         (NotEncodableValueException $e) {
@@ -112,9 +116,6 @@ class ApiUserController extends AbstractController
         $this->entityManager->remove($user);
         $this->entityManager->flush();
 
-        return $this->json(
-            null,
-            Response::HTTP_NO_CONTENT
-        );
+        return new Response(null, Response::HTTP_NO_CONTENT);
     }
 }

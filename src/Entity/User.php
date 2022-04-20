@@ -4,38 +4,60 @@ namespace App\Entity;
 
 use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
+use Hateoas\Configuration\Annotation as Hateoas;
+use JMS\Serializer\Annotation as Serializer;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
+#[Serializer\ExclusionPolicy('ALL')]
+/**
+ * @Hateoas\Relation(
+ *      "self",
+ *      href = @Hateoas\Route(
+ *          "app_api_user_item_get",
+ *          parameters = { "id" = "expr(object.getId())" },
+ *          absolute = true
+ *      )
+ * )
+ *
+ *  * @Hateoas\Relation(
+ *      "delete",
+ *      href = @Hateoas\Route(
+ *          "app_api_user_item_delete",
+ *          parameters = { "id" = "expr(object.getId())" },
+ *          absolute = true
+ *      )
+ * )
+ */
 class User
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
-    #[Groups("user:index")]
+    #[Serializer\Expose]
     private $id;
 
     #[ORM\Column(type: 'string', length: 255)]
-    #[Groups("user:index")]
+    #[Serializer\Groups(["user:collection"])]
     #[Assert\Length(min: 3, minMessage: 'Le nom doit contenir au moins 3 caractères')]
     #[Assert\NotBlank(message: 'Le nom est obligatoire')]
+    #[Serializer\Expose]
     private $lastname;
 
     #[ORM\Column(type: 'string', length: 255)]
-    #[Groups("user:index")]
     #[Assert\Length(min: 3, minMessage: 'Le prénom doit contenir au moins 3 caractères')]
     #[Assert\NotBlank(message: 'Le prénom est obligatoire')]
+    #[Serializer\Expose]
     private $firstname;
 
     #[ORM\Column(type: 'string', length: 255, unique: true)]
-    #[Groups("user:index")]
     #[Assert\Email(message: 'L\'adresse mail est incorrecte')]
     #[Assert\NotBlank(message: 'L\'email est obligatoire')]
+    #[Serializer\Expose]
     private $email;
 
     #[ORM\ManyToOne(targetEntity: Customer::class, inversedBy: 'users')]
-    #[Groups("user:index")]
+    #[Serializer\Expose]
     private $customer;
 
     public function getId(): ?int

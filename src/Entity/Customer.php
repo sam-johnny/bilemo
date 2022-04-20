@@ -8,23 +8,24 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Serializer\Annotation\Groups;
+use JMS\Serializer\Annotation as Serializer;
 
 #[ORM\Entity(repositoryClass: CustomerRepository::class)]
+#[Serializer\ExclusionPolicy('ALL')]
 class Customer implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
-    #[Groups("user:index")]
+    #[Serializer\Expose]
     private ?int $id;
 
     #[ORM\Column(type: 'string', length: 255)]
-    #[Groups("user:index")]
+    #[Serializer\Expose]
     private ?string $name;
 
     #[ORM\Column(type: 'string', length: 255, unique: true)]
-    #[Groups("user:index")]
+    #[Serializer\Expose]
     private ?string $email;
 
     #[ORM\Column(type: 'json')]

@@ -12,10 +12,12 @@
         "doctrine/doctrine-migrations-bundle": "^3.2",
         "doctrine/orm": "^2.11",
         "fzaninotto/faker": "^1.5",
+        "jms/serializer-bundle": "^4.0",
         "lexik/jwt-authentication-bundle": "^2.15",
         "symfony/console": "6.0.*",
         "symfony/dependency-injection": "6.0.*",
         "symfony/dotenv": "6.0.*",
+        "symfony/expression-language": "6.0.*",
         "symfony/filesystem": "6.0.*",
         "symfony/flex": "^2",
         "symfony/framework-bundle": "6.0.*",
@@ -30,7 +32,8 @@
         "symfony/validator": "6.0.*",
         "symfony/var-dumper": "6.0.*",
         "symfony/var-exporter": "6.0.*",
-        "symfony/yaml": "6.0.*"
+        "symfony/yaml": "6.0.*",
+        "willdurand/hateoas-bundle": "^2.4"
     },
     "config": {
         "allow-plugins": {
