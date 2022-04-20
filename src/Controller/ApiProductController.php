@@ -7,6 +7,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+#[Route('/api/product')]
 class ApiProductController extends AbstractController
 {
     private ProductRepository $repository;
@@ -16,22 +17,22 @@ class ApiProductController extends AbstractController
         $this->repository = $repository;
     }
 
-    #[Route('/api/product/index', name: 'app_api_product_index', methods: ['GET'])]
-    public function index(): Response
+    #[Route(name: 'app_api_product_collection_get', methods: ['GET'])]
+    public function collection(): Response
     {
         return $this->json(
             $this->repository->findAll(),
-            200,
+            Response::HTTP_OK,
             []
         );
     }
 
-    #[Route('/api/product/{id}', name: 'app_api_product_show', requirements: ['id' => '[\d]+'],methods: ['GET'])]
-    public function show($id): Response
+    #[Route('/{id}', name: 'app_api_product_item_get', requirements: ['id' => '[\d]+'],methods: ['GET'])]
+    public function item(): Response
     {
         return $this->json(
-            $this->repository->find($id),
-            200,
+            $this->repository->findOneBy([]),
+            Response::HTTP_OK,
             []
         );
     }
