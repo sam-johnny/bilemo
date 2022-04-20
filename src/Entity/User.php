@@ -28,7 +28,7 @@ class User
     #[Assert\NotBlank(message: 'Le prénom est obligatoire')]
     private $firstname;
 
-    #[ORM\Column(type: 'string', length: 255)]
+    #[ORM\Column(type: 'string', length: 255, unique: true)]
     #[Groups("user:index")]
     #[Assert\Email(message: 'L\'adresse mail est incorrecte')]
     #[Assert\NotBlank(message: 'L\'email est obligatoire')]
