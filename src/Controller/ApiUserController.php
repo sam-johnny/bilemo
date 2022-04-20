@@ -63,7 +63,6 @@ class ApiUserController extends AbstractController
             if (count($errors) > 0) {
                 return $this->json($errors, Response::HTTP_BAD_REQUEST);
             }
-
             $user->setCustomer($this->getUser());
             $entityManager->persist($user);
             $entityManager->flush();
