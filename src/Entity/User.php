@@ -35,26 +35,26 @@ class User
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
     #[Serializer\Expose]
-    private $id;
+    private ?int $id;
 
     #[ORM\Column(type: 'string', length: 255)]
     #[Serializer\Groups(["user:collection"])]
     #[Assert\Length(min: 3, minMessage: 'Le nom doit contenir au moins 3 caractères')]
     #[Assert\NotBlank(message: 'Le nom est obligatoire')]
     #[Serializer\Expose]
-    private $lastname;
+    private ?string $lastname;
 
     #[ORM\Column(type: 'string', length: 255)]
     #[Assert\Length(min: 3, minMessage: 'Le prénom doit contenir au moins 3 caractères')]
     #[Assert\NotBlank(message: 'Le prénom est obligatoire')]
     #[Serializer\Expose]
-    private $firstname;
+    private ?string $firstname;
 
     #[ORM\Column(type: 'string', length: 255, unique: true)]
     #[Assert\Email(message: 'L\'adresse mail est incorrecte')]
     #[Assert\NotBlank(message: 'L\'email est obligatoire')]
     #[Serializer\Expose]
-    private $email;
+    private ?string $email;
 
     #[ORM\ManyToOne(targetEntity: Customer::class, inversedBy: 'users')]
     #[Serializer\Expose]

@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Helper\Paginated\PaginatedHelper;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use JMS\Serializer\SerializerInterface;
@@ -38,15 +39,24 @@ class ApiUserController extends AbstractController
      * @return Response
      */
     #[Route(name: 'app_api_user_collection_get', methods: ['GET'])]
-    public function collection(): Response
+    public function collection(
+        PaginatedHelper $paginatedHelper,
+        Request         $request
+    ): Response
     {
-        $user = $this->serializer->serialize($this->repository->findAll(), 'json');
+
+        $paginatedCollection = $paginatedHelper->paginatedCollection(
+            $this->repository->findAll(),
+            $request->attributes->get('_route')
+        );
+
+        $user = $this->serializer->serialize($paginatedCollection, 'json');
 
         return new Response(
             $user,
             Response::HTTP_OK,
             ['Content-Type' => 'application/json'],
-            );
+        );
     }
 
     /**
@@ -87,7 +97,7 @@ class ApiUserController extends AbstractController
             if (count($errors) > 0) {
                 return $this->json($errors, Response::HTTP_BAD_REQUEST);
             }
-            $user->setCustomer($this->getUser());
+
             $this->entityManager->persist($user);
             $this->entityManager->flush();
 
