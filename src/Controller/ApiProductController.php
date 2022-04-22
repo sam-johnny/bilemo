@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Product;
 use App\Helper\Paginated\PaginatedHelper;
 use App\Repository\ProductRepository;
 use JMS\Serializer\SerializerInterface;
@@ -9,6 +10,9 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use Nelmio\ApiDocBundle\Annotation\Security;
+use OpenApi\Annotations as OA;
 
 #[Route('/api/product')]
 class ApiProductController extends AbstractController
@@ -22,6 +26,20 @@ class ApiProductController extends AbstractController
         $this->serializer = $serializer;
     }
 
+
+    /**
+     * @OA\Response(
+     *     response=200,
+     *     description="Returns a list of products",
+     *     @OA\JsonContent(
+     *     type="array",
+     *     @OA\Items(ref=@Model(type=Product::class))
+     *    )
+     * )
+     *
+     * @OA\Tag(name="Product")
+     * @Security(name="Bearer")
+     */
     #[Route(name: 'app_api_product_collection_get', methods: ['GET'])]
     public function collection(PaginatedHelper $paginatedHelper, Request $request): Response
     {
@@ -40,13 +58,26 @@ class ApiProductController extends AbstractController
         );
     }
 
-    #[Route('/{id}', name: 'app_api_product_item_get', requirements: ['id' => '[\d]+'], methods: ['GET'])]
-    public function item(int $id): Response
+    #[Route('/{id}', name: 'app_api_product_item_get', methods: ['GET'])]
+    /**
+     * @OA\Response(
+     *     response=200,
+     *     description="Returns an item of product",
+     *     @OA\JsonContent(
+     *     type="array",
+     *     @OA\Items(ref=@Model(type=Product::class))
+     *    )
+     * )
+     *
+     * @OA\Tag(name="Product")
+     * @Security(name="Bearer")
+     */
+    public function item(Product $product): Response
     {
-        $json = $this->serializer->serialize($this->repository->find($id), 'json');
+        $productJson = $this->serializer->serialize($product, 'json');
 
         return new Response(
-            $json,
+            $productJson,
             Response::HTTP_OK,
             ['Content-Type' => 'application/json']
         );

@@ -8,13 +8,16 @@ use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use JMS\Serializer\SerializerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Serializer\Exception\NotEncodableValueException;
-
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use Nelmio\ApiDocBundle\Annotation\Security;
+use OpenApi\Annotations as OA;
+
 
 #[Route('/api/user')]
 class ApiUserController extends AbstractController
@@ -36,7 +39,21 @@ class ApiUserController extends AbstractController
 
 
     /**
+     * @param PaginatedHelper $paginatedHelper
+     * @param Request $request
      * @return Response
+     *
+     * @OA\Response(
+     *     response=200,
+     *     description="Returns a list of users",
+     *     @OA\JsonContent(
+     *     type="array",
+     *     @OA\Items(ref=@Model(type=User::class))
+     *    )
+     * )
+     *
+     * @OA\Tag(name="User")
+     * @Security(name="Bearer")
      */
     #[Route(name: 'app_api_user_collection_get', methods: ['GET'])]
     public function collection(
@@ -60,16 +77,28 @@ class ApiUserController extends AbstractController
     }
 
     /**
-     * @param int $id
+     * @param User $user
      * @return Response
+     *
+     * @OA\Response(
+     *     response=200,
+     *     description="Returns a item of user",
+     *     @OA\JsonContent(
+     *     type="array",
+     *     @OA\Items(ref=@Model(type=User::class))
+     *    )
+     * )
+     *
+     * @OA\Tag(name="User")
+     * @Security(name="Bearer")
      */
-    #[Route('/{id}', name: 'app_api_user_item_get', requirements: ['id' => '[\d]+'], methods: ['GET'])]
-    public function item(int $id): Response
+    #[Route('/{id}', name: 'app_api_user_item_get', methods: ['GET'])]
+    public function item(User $user): Response
     {
-        $user = $this->serializer->serialize($this->repository->find($id), 'json');
+        $userJson = $this->serializer->serialize($user, 'json');
 
         return new Response(
-            $user,
+            $userJson,
             Response::HTTP_OK,
             ['Content-Type' => 'application/json']
         );
@@ -78,15 +107,25 @@ class ApiUserController extends AbstractController
     /**
      * @param Request $request
      * @param ValidatorInterface $validator
-     * @param UrlGeneratorInterface $urlGenerator
-     * @return Response
+     * @return JsonResponse|Response
+     *
+     * @OA\Response(
+     *     response=201,
+     *     description="Create new user",
+     *     @OA\JsonContent(
+     *     type="array",
+     *     @OA\Items(ref=@Model(type=User::class))
+     *    )
+     * )
+     *
+     * @OA\Tag(name="User")
+     * @Security(name="Bearer")
      */
     #[Route(name: 'app_api_user_item_post', methods: ['POST'])]
     public function user(
-        Request               $request,
-        ValidatorInterface    $validator,
-        UrlGeneratorInterface $urlGenerator
-    ): Response
+        Request            $request,
+        ValidatorInterface $validator
+    ): JsonResponse|Response
     {
         try {
             /** @var User $user */
@@ -103,8 +142,7 @@ class ApiUserController extends AbstractController
 
             return new Response(
                 null,
-                Response::HTTP_CREATED,
-                ["Location" => $urlGenerator->generate('app_api_user_item_get', ['id' => $user->getId()])]
+                Response::HTTP_CREATED
             );
         } catch
         (NotEncodableValueException $e) {
@@ -116,13 +154,20 @@ class ApiUserController extends AbstractController
     }
 
     /**
-     * @param $id
+     * @param User $user
      * @return Response
+     *
+     * @OA\Response(
+     *     response=204,
+     *     description="Delete user",
+     * )
+     *
+     * @OA\Tag(name="User")
+     * @Security(name="Bearer")
      */
     #[Route('/{id}', name: 'app_api_user_item_delete', methods: ['DELETE'])]
-    public function delete($id): Response
+    public function delete(User $user): Response
     {
-        $user = $this->repository->find($id);
         $this->entityManager->remove($user);
         $this->entityManager->flush();
 

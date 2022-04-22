@@ -4,11 +4,13 @@ namespace App\Entity;
 
 use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as Serializer;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
+#[UniqueEntity('email')]
 #[Serializer\ExclusionPolicy('ALL')]
 /**
  * @Hateoas\Relation(
@@ -20,7 +22,7 @@ use JMS\Serializer\Annotation as Serializer;
  *      )
  * )
  *
- *  * @Hateoas\Relation(
+ * @Hateoas\Relation(
  *      "delete",
  *      href = @Hateoas\Route(
  *          "app_api_user_item_delete",
@@ -38,7 +40,6 @@ class User
     private ?int $id;
 
     #[ORM\Column(type: 'string', length: 255)]
-    #[Serializer\Groups(["user:collection"])]
     #[Assert\Length(min: 3, minMessage: 'Le nom doit contenir au moins 3 caractères')]
     #[Assert\NotBlank(message: 'Le nom est obligatoire')]
     #[Serializer\Expose]
