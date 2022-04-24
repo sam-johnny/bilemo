@@ -12,7 +12,6 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Serializer\Exception\NotEncodableValueException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use Nelmio\ApiDocBundle\Annotation\Security;
@@ -127,7 +126,6 @@ class ApiUserController extends AbstractController
         ValidatorInterface $validator
     ): JsonResponse|Response
     {
-        try {
             /** @var User $user */
             $user = $this->serializer->deserialize($request->getContent(), User::class, 'json');
 
@@ -144,13 +142,6 @@ class ApiUserController extends AbstractController
                 null,
                 Response::HTTP_CREATED
             );
-        } catch
-        (NotEncodableValueException $e) {
-            return $this->json([
-                'status' => 400,
-                'message' => $e->getMessage()
-            ], Response::HTTP_BAD_REQUEST);
-        }
     }
 
     /**

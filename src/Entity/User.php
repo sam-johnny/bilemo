@@ -10,7 +10,7 @@ use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as Serializer;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
-#[UniqueEntity('email')]
+#[UniqueEntity('email', message: "L'adresse mail est déjà utilisée")]
 #[Serializer\ExclusionPolicy('ALL')]
 /**
  * @Hateoas\Relation(
