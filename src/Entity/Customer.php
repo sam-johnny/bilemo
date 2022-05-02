@@ -10,31 +10,59 @@ use JetBrains\PhpStorm\Pure;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use JMS\Serializer\Annotation as Serializer;
+use OpenApi\Annotations as OA;
 
 #[ORM\Entity(repositoryClass: CustomerRepository::class)]
 #[Serializer\ExclusionPolicy('ALL')]
+/**
+ * @OA\Schema
+ */
 class Customer implements UserInterface, PasswordAuthenticatedUserInterface
 {
+    /**
+     * @OA\Property(type="integer")
+     * @var int|null
+     */
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
     #[Serializer\Expose]
     private ?int $id;
 
+    /**
+     * @OA\Property(type="string")
+     * @var string|null
+     */
     #[ORM\Column(type: 'string', length: 255)]
     #[Serializer\Expose]
     private ?string $name;
 
+    /**
+     * @OA\Property(type="string")
+     * @var string|null
+     */
     #[ORM\Column(type: 'string', length: 255, unique: true)]
     #[Serializer\Expose]
     private ?string $email;
 
+    /**
+     * @OA\Property(type="string")
+     * @var string[]
+     */
     #[ORM\Column(type: 'json')]
     private array $roles = [];
 
+    /**
+     * @OA\Property(type="array")
+     * @var ArrayCollection
+     */
     #[ORM\OneToMany(mappedBy: 'customer', targetEntity: User::class)]
     private $users;
 
+    /**
+     * @OA\Property(type="string")
+     * @var string|null
+     */
     #[ORM\Column(type: 'string', length: 255)]
     private ?string $password;
 

@@ -3,19 +3,21 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Exception\CustomerInvalidException;
 use App\Helper\Paginated\PaginatedHelper;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use JMS\Serializer\SerializerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
-use Nelmio\ApiDocBundle\Annotation\Model;
-use Nelmio\ApiDocBundle\Annotation\Security;
 use OpenApi\Annotations as OA;
+use JMS\Serializer\SerializerInterface;
+use Symfony\Component\Serializer\SerializerInterface as SerializerSymfony;
 
 
 #[Route('/api/user')]
@@ -38,27 +40,40 @@ class ApiUserController extends AbstractController
 
 
     /**
-     * @param PaginatedHelper $paginatedHelper
-     * @param Request $request
-     * @return Response
+     * Collection of users
+     *
+     * @OA\Get(
+     *     path="/api/user",
+     *     tags={"user"},
+     *     operationId="collectionUsers",
+     *     summary="Find list of users",
+     *     description="Returns a list of users",
+     *     security={"bearer"}
+     * ),
      *
      * @OA\Response(
-     *     response=200,
-     *     description="Returns a list of users",
-     *     @OA\JsonContent(
-     *     type="array",
-     *     @OA\Items(ref=@Model(type=User::class))
-     *    )
-     * )
+     *      response="200",
+     *      description="successful operation",
+     *      @OA\JsonContent(type="array", @OA\Items(ref=@Nelmio\ApiDocBundle\Annotation\Model(type=User::class)))
+     *      ),
      *
-     * @OA\Tag(name="User")
-     * @Security(name="Bearer")
+     * @OA\Response(
+     *      response="401",
+     *      description="Token invalid"),
+     *
+     * @OA\Response(
+     *      response="404",
+     *      description="Product not found"),
+     *
+     * @param PaginatedHelper $paginatedHelper
+     * @param Request $request
+     * @return JsonResponse
      */
     #[Route(name: 'app_api_user_collection_get', methods: ['GET'])]
-    public function collection(
+    public function collectionUsers(
         PaginatedHelper $paginatedHelper,
         Request         $request
-    ): Response
+    ): JsonResponse
     {
 
         $paginatedCollection = $paginatedHelper->paginatedCollection(
@@ -66,98 +81,266 @@ class ApiUserController extends AbstractController
             $request->attributes->get('_route')
         );
 
-        $user = $this->serializer->serialize($paginatedCollection, 'json');
-
-        return new Response(
-            $user,
+        return new JsonResponse(
+            $this->serializer->serialize($paginatedCollection, 'json'),
             Response::HTTP_OK,
-            ['Content-Type' => 'application/json'],
+            [],
+            true
         );
     }
 
     /**
-     * @param User $user
-     * @return Response
+     * Find user by ID
+     *
+     * @OA\Get(
+     *     path="/api/user/{id}",
+     *     tags={"user"},
+     *     operationId="itemUsers",
+     *     summary="Find user by ID",
+     *     description="Returns a single user",
+     *     security={"bearer"},
+     *     @OA\Parameter(
+     *      name="id",
+     *      in="path",
+     *      description="ID of user to return",
+     *      required=true,
+     *     @OA\Schema(
+     *      type="integer",
+     *      format="int64"
+     *     ),
+     *  )
+     * ),
      *
      * @OA\Response(
-     *     response=200,
-     *     description="Returns a item of user",
-     *     @OA\JsonContent(
-     *     type="array",
-     *     @OA\Items(ref=@Model(type=User::class))
-     *    )
-     * )
+     *      response="200",
+     *      description="successful operation",
+     *      @OA\JsonContent(type="array", @OA\Items(ref=@Nelmio\ApiDocBundle\Annotation\Model(type=User::class)))
+     *      ),
      *
-     * @OA\Tag(name="User")
-     * @Security(name="Bearer")
+     * @OA\Response(
+     *      response="401",
+     *      description="Token invalid"),
+     *
+     * @OA\Response(
+     *      response="404",
+     *      description="Product not found"),
+     *
+     * @param User $user
+     * @return JsonResponse
      */
     #[Route('/{id}', name: 'app_api_user_item_get', methods: ['GET'])]
-    public function item(User $user): Response
+    public function itemUser(User $user): JsonResponse
     {
-        $userJson = $this->serializer->serialize($user, 'json');
-
-        return new Response(
-            $userJson,
+        return new JsonResponse(
+            $this->serializer->serialize($user, 'json'),
             Response::HTTP_OK,
-            ['Content-Type' => 'application/json']
+            [],
+            true
         );
     }
 
     /**
-     * @param Request $request
-     * @param ValidatorInterface $validator
-     * @return JsonResponse|Response
+     * Add new user to the list
+     *
+     * @OA\Post(
+     *     path="/api/user",
+     *     tags={"user"},
+     *     operationId="addUser",
+     *     summary="Add new user",
+     *     description="Add new user",
+     *     security={"bearer"},
+     *      @OA\Parameter(
+     *      name="id",
+     *      in="path",
+     *      description="ID of user to return",
+     *      required=true,
+     *     @OA\Schema(
+     *      type="integer",
+     *      format="int64"
+     *     ),
+     *  )
+     * ),
      *
      * @OA\Response(
-     *     response=201,
-     *     description="Create new user",
-     *     @OA\JsonContent(
-     *     type="array",
-     *     @OA\Items(ref=@Model(type=User::class))
-     *    )
-     * )
+     *      response="201",
+     *      description="successful addition",
+     *      @OA\JsonContent(type="array", @OA\Items(ref=@Nelmio\ApiDocBundle\Annotation\Model(type=User::class)))
+     *      ),
      *
-     * @OA\Tag(name="User")
-     * @Security(name="Bearer")
+     * @OA\Response(
+     *      response="401",
+     *      description="Token invalid"),
+     *
+     * @OA\Response(
+     *      response="404",
+     *      description="Product not found"),
+     *
+     * @OA\Response(
+     *      response="500",
+     *      description="Malformed JSON"),
+     *
+     * @param Request $request
+     * @param ValidatorInterface $validator
+     * @param UrlGeneratorInterface $urlGenerator
+     * @return JsonResponse
      */
-    #[Route(name: 'app_api_user_item_post', methods: ['POST'])]
-    public function user(
-        Request            $request,
-        ValidatorInterface $validator
-    ): JsonResponse|Response
+    #[Route(name: 'app_api_add_user_item_post', methods: ['POST'])]
+    public function addUser(
+        Request               $request,
+        ValidatorInterface    $validator,
+        UrlGeneratorInterface $urlGenerator
+    ): JsonResponse
     {
-            /** @var User $user */
-            $user = $this->serializer->deserialize($request->getContent(), User::class, 'json');
+        /** @var User $user */
+        $user = $this->serializer->deserialize($request->getContent(), User::class, 'json');
 
-            $errors = $validator->validate($user);
+        $errors = $validator->validate($user);
 
-            if (count($errors) > 0) {
-                return $this->json($errors, Response::HTTP_BAD_REQUEST);
-            }
-
-            $this->entityManager->persist($user);
-            $this->entityManager->flush();
-
-            return new Response(
-                null,
-                Response::HTTP_CREATED
+        if (count($errors) > 0) {
+            return new JsonResponse(
+                $this->serializer->serialize($errors, 'json'),
+                Response::HTTP_BAD_REQUEST,
+                [],
+                true
             );
+        }
+
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
+
+
+        return new JsonResponse(
+            $this->serializer->serialize($user, 'json'),
+            Response::HTTP_CREATED,
+            ["Location" => $urlGenerator->generate("app_api_user_item_get", ["id" => $user->getId()])],
+            true
+        );
+
+
     }
 
     /**
-     * @param User $user
-     * @return Response
+     * Update an existing user
+     *
+     * @OA\Put(
+     *     path="/api/user/{id}",
+     *     tags={"user"},
+     *     operationId="updateUser",
+     *     summary="Update user",
+     *     description="Update an existing user",
+     *     security={"bearer"}
+     * ),
      *
      * @OA\Response(
-     *     response=204,
-     *     description="Delete user",
-     * )
+     *      response="200",
+     *      description="successful addition",
+     *      @OA\JsonContent(type="array", @OA\Items(ref=@Nelmio\ApiDocBundle\Annotation\Model(type=User::class)))
+     *      ),
      *
-     * @OA\Tag(name="User")
-     * @Security(name="Bearer")
+     * @OA\Response(
+     *      response="401",
+     *      description="Token invalid"),
+     *
+     * @OA\Response(
+     *      response="404",
+     *      description="Product not found"),
+     *
+     * @OA\Response(
+     *      response="500",
+     *      description="Malformed JSON"),
+     *
+     * @param User $user
+     * @param Request $request
+     * @param ValidatorInterface $validator
+     * @param SerializerSymfony $serializer
+     * @param Security $security
+     * @return JsonResponse
+     * @throws CustomerInvalidException
      */
-    #[Route('/{id}', name: 'app_api_user_item_delete', methods: ['DELETE'])]
-    public function delete(User $user): Response
+    #[Route('/{id}', name: 'app_api_user_item_put', methods: ['PUT'])]
+    public function updateUser(
+        User               $user,
+        Request            $request,
+        ValidatorInterface $validator,
+        SerializerSymfony  $serializer,
+        Security           $security
+    ): JsonResponse
+    {
+
+        if ($user->getCustomer() !== $security->getUser()){
+            throw new CustomerInvalidException("Customer invalid");
+        }
+
+        $serializer->deserialize(
+            $request->getContent(),
+            User::class,
+            'json',
+            ['object_to_populate' => $user]
+        );
+
+        $error = $validator->validate($user);
+
+        if (count($error) > 0) {
+            return new JsonResponse(
+                $this->serializer->serialize($error, 'json'),
+                Response::HTTP_BAD_REQUEST,
+                [],
+                true
+            );
+        }
+
+        $this->entityManager->flush();
+
+        return new JsonResponse(
+            $this->serializer->serialize($user, 'json'),
+            Response::HTTP_OK,
+            [],
+            true
+        );
+    }
+
+    /**
+     * Delete user to the list
+     *
+     * @OA\Delete(
+     *     path="/api/user/{id}",
+     *     tags={"user"},
+     *     operationId="deleteUser",
+     *     summary="Delete user",
+     *     description="delete user",
+     *     security={"bearer"},
+     *     @OA\Parameter(
+     *      name="id",
+     *      in="path",
+     *      description="ID of user to return",
+     *      required=true,
+     *     @OA\Schema(
+     *      type="integer",
+     *      format="int64"
+     *     ),
+     *  )
+     * ),
+     *
+     * @OA\Response(
+     *      response="204",
+     *      description="Delete successful",
+     *      @OA\JsonContent(type="array", @OA\Items(ref=@Nelmio\ApiDocBundle\Annotation\Model(type=User::class)))
+     *      ),
+     *
+     * @OA\Response(
+     *      response="401",
+     *      description="Token invalid"),
+     *
+     * @OA\Response(
+     *      response="404",
+     *      description="Product not found"),
+     *
+     * @param User $user
+     * @return Response
+     */
+    #[
+        Route('/{id}', name: 'app_api_user_item_delete', methods: ['DELETE'])]
+    public function deleteUser(User $user): Response
     {
         $this->entityManager->remove($user);
         $this->entityManager->flush();

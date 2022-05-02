@@ -8,11 +8,14 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as Serializer;
+use OpenApi\Annotations as OA;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[UniqueEntity('email', message: "L'adresse mail est déjà utilisée")]
 #[Serializer\ExclusionPolicy('ALL')]
 /**
+ * @OA\Schema
+ *
  * @Hateoas\Relation(
  *      "self",
  *      href = @Hateoas\Route(
@@ -33,30 +36,49 @@ use JMS\Serializer\Annotation as Serializer;
  */
 class User
 {
+    /**
+     * @OA\Property(type="integer")
+     * @var int|null
+     */
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
     #[Serializer\Expose]
-    private ?int $id;
+    private ?int $id = null;
 
+    /**
+     * @OA\Property(type="string")
+     * @var string|null
+     */
     #[ORM\Column(type: 'string', length: 255)]
     #[Assert\Length(min: 3, minMessage: 'Le nom doit contenir au moins 3 caractères')]
     #[Assert\NotBlank(message: 'Le nom est obligatoire')]
     #[Serializer\Expose]
     private ?string $lastname;
 
+    /**
+     * @OA\Property(type="string")
+     * @var string|null
+     */
     #[ORM\Column(type: 'string', length: 255)]
     #[Assert\Length(min: 3, minMessage: 'Le prénom doit contenir au moins 3 caractères')]
     #[Assert\NotBlank(message: 'Le prénom est obligatoire')]
     #[Serializer\Expose]
     private ?string $firstname;
 
+    /**
+     * @OA\Property(type="string")
+     * @var string|null
+     */
     #[ORM\Column(type: 'string', length: 255, unique: true)]
     #[Assert\Email(message: 'L\'adresse mail est incorrecte')]
     #[Assert\NotBlank(message: 'L\'email est obligatoire')]
     #[Serializer\Expose]
     private ?string $email;
 
+    /**
+     * @var
+     */
     #[ORM\ManyToOne(targetEntity: Customer::class, inversedBy: 'users')]
     #[Serializer\Expose]
     private $customer;
