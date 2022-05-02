@@ -6,37 +6,69 @@ use App\Repository\CustomerRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;
+use JetBrains\PhpStorm\Pure;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
+use JMS\Serializer\Annotation as Serializer;
+use OpenApi\Annotations as OA;
 
 #[ORM\Entity(repositoryClass: CustomerRepository::class)]
-class Customer
+#[Serializer\ExclusionPolicy('ALL')]
+/**
+ * @OA\Schema
+ */
+class Customer implements UserInterface, PasswordAuthenticatedUserInterface
 {
+    /**
+     * @OA\Property(type="integer")
+     * @var int|null
+     */
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
-    #[Groups("user:index")]
-    private $id;
+    #[Serializer\Expose]
+    private ?int $id;
 
+    /**
+     * @OA\Property(type="string")
+     * @var string|null
+     */
     #[ORM\Column(type: 'string', length: 255)]
-    #[Groups("user:index")]
-    private $name;
+    #[Serializer\Expose]
+    private ?string $name;
 
-    #[ORM\Column(type: 'string', length: 255)]
-    #[Groups("user:index")]
-    private $email;
+    /**
+     * @OA\Property(type="string")
+     * @var string|null
+     */
+    #[ORM\Column(type: 'string', length: 255, unique: true)]
+    #[Serializer\Expose]
+    private ?string $email;
 
+    /**
+     * @OA\Property(type="string")
+     * @var string[]
+     */
     #[ORM\Column(type: 'json')]
-    private $role = [];
+    private array $roles = [];
 
+    /**
+     * @OA\Property(type="array")
+     * @var ArrayCollection
+     */
     #[ORM\OneToMany(mappedBy: 'customer', targetEntity: User::class)]
     private $users;
 
+    /**
+     * @OA\Property(type="string")
+     * @var string|null
+     */
     #[ORM\Column(type: 'string', length: 255)]
-    private $password;
+    private ?string $password;
 
-    public function __construct()
+    #[Pure] public function __construct()
     {
-        $this->role = ['ROLE_USER'];
+        $this->roles = ['ROLE_USER'];
         $this->users = new ArrayCollection();
     }
 
@@ -69,14 +101,17 @@ class Customer
         return $this;
     }
 
-    public function getRole(): ?array
+    /**
+     * @see UserInterface
+     */
+    public function getRoles(): array
     {
-        return $this->role;
+        return $this->roles;
     }
 
-    public function setRole(array $role): self
+    public function setRoles(array $role): self
     {
-        $this->role = $role;
+        $this->roles = $role;
 
         return $this;
     }
@@ -111,6 +146,9 @@ class Customer
         return $this;
     }
 
+    /**
+     * @see PasswordAuthenticatedUserInterface
+     */
     public function getPassword(): ?string
     {
         return $this->password;
@@ -122,4 +160,23 @@ class Customer
 
         return $this;
     }
+
+    /**
+     * @see UserInterface
+     */
+    public function eraseCredentials(): void
+    {
+        // If you store any temporary, sensitive data on the user, clear it here
+        // $this->plainPassword = null;
+    }
+
+    /**
+     * @see UserInterface
+     */
+    public function getUserIdentifier(): string
+    {
+        return $this->email;
+    }
+
+
 }

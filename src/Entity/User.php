@@ -4,38 +4,83 @@ namespace App\Entity;
 
 use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
+use Hateoas\Configuration\Annotation as Hateoas;
+use JMS\Serializer\Annotation as Serializer;
+use OpenApi\Annotations as OA;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
+#[UniqueEntity('email', message: "L'adresse mail est déjà utilisée")]
+#[Serializer\ExclusionPolicy('ALL')]
+/**
+ * @OA\Schema
+ *
+ * @Hateoas\Relation(
+ *      "self",
+ *      href = @Hateoas\Route(
+ *          "app_api_user_item_get",
+ *          parameters = { "id" = "expr(object.getId())" },
+ *          absolute = true
+ *      )
+ * )
+ *
+ * @Hateoas\Relation(
+ *      "delete",
+ *      href = @Hateoas\Route(
+ *          "app_api_user_item_delete",
+ *          parameters = { "id" = "expr(object.getId())" },
+ *          absolute = true
+ *      )
+ * )
+ */
 class User
 {
+    /**
+     * @OA\Property(type="integer")
+     * @var int|null
+     */
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
-    #[Groups("user:index")]
-    private $id;
+    #[Serializer\Expose]
+    private ?int $id = null;
 
+    /**
+     * @OA\Property(type="string")
+     * @var string|null
+     */
     #[ORM\Column(type: 'string', length: 255)]
-    #[Groups("user:index")]
     #[Assert\Length(min: 3, minMessage: 'Le nom doit contenir au moins 3 caractères')]
     #[Assert\NotBlank(message: 'Le nom est obligatoire')]
-    private $lastname;
+    #[Serializer\Expose]
+    private ?string $lastname;
 
+    /**
+     * @OA\Property(type="string")
+     * @var string|null
+     */
     #[ORM\Column(type: 'string', length: 255)]
-    #[Groups("user:index")]
     #[Assert\Length(min: 3, minMessage: 'Le prénom doit contenir au moins 3 caractères')]
     #[Assert\NotBlank(message: 'Le prénom est obligatoire')]
-    private $firstname;
+    #[Serializer\Expose]
+    private ?string $firstname;
 
-    #[ORM\Column(type: 'string', length: 255)]
-    #[Groups("user:index")]
+    /**
+     * @OA\Property(type="string")
+     * @var string|null
+     */
+    #[ORM\Column(type: 'string', length: 255, unique: true)]
     #[Assert\Email(message: 'L\'adresse mail est incorrecte')]
     #[Assert\NotBlank(message: 'L\'email est obligatoire')]
-    private $email;
+    #[Serializer\Expose]
+    private ?string $email;
 
+    /**
+     * @var
+     */
     #[ORM\ManyToOne(targetEntity: Customer::class, inversedBy: 'users')]
-    #[Groups("user:index")]
+    #[Serializer\Expose]
     private $customer;
 
     public function getId(): ?int
