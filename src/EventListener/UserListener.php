@@ -27,6 +27,4 @@ class UserListener
             $entity->setCustomer($user);
         }
     }
-
-
 }
