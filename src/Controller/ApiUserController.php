@@ -241,6 +241,10 @@ class ApiUserController extends AbstractController
      *      response="401",
      *      description="Token invalid"),
      *
+     * * @OA\Response(
+     *      response="401",
+     *      description="Customer invalid"),
+     *
      * @OA\Response(
      *      response="404",
      *      description="Product not found"),
