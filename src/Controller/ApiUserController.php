@@ -7,6 +7,8 @@ use App\Exception\CustomerInvalidException;
 use App\Helper\Paginated\PaginatedHelper;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Mapping\Cache;
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,6 +20,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 use OpenApi\Annotations as OA;
 use JMS\Serializer\SerializerInterface;
 use Symfony\Component\Serializer\SerializerInterface as SerializerSymfony;
+use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 
 
 #[Route('/api/user')]
@@ -67,12 +71,15 @@ class ApiUserController extends AbstractController
      *
      * @param PaginatedHelper $paginatedHelper
      * @param Request $request
+     * @param CacheInterface $cache
      * @return JsonResponse
+     * @throws InvalidArgumentException
      */
     #[Route(name: 'app_api_user_collection_get', methods: ['GET'])]
     public function collectionUsers(
         PaginatedHelper $paginatedHelper,
-        Request         $request
+        Request         $request,
+        CacheInterface  $cache
     ): JsonResponse
     {
 
@@ -81,8 +88,13 @@ class ApiUserController extends AbstractController
             $request->attributes->get('_route')
         );
 
+        $users = $cache->get('users_list', function (ItemInterface $item) use ($paginatedCollection) {
+            $item->expiresAfter(3600);
+            return $this->serializer->serialize($paginatedCollection, 'json');
+        });
+
         return new JsonResponse(
-            $this->serializer->serialize($paginatedCollection, 'json'),
+            $users,
             Response::HTTP_OK,
             [],
             true
@@ -126,13 +138,23 @@ class ApiUserController extends AbstractController
      *      description="Product not found"),
      *
      * @param User $user
+     * @param CacheInterface $cache
      * @return JsonResponse
+     * @throws InvalidArgumentException
      */
     #[Route('/{id}', name: 'app_api_user_item_get', methods: ['GET'])]
-    public function itemUser(User $user): JsonResponse
+    public function itemUser(
+        User $user,
+        CacheInterface $cache
+    ): JsonResponse
     {
+        $user = $cache->get('user_item'. $user->getId(), function (ItemInterface $item) use ($user) {
+            $item->expiresAfter(3600);
+            return $this->serializer->serialize($user, 'json');
+        });
+
         return new JsonResponse(
-            $this->serializer->serialize($user, 'json'),
+            $user,
             Response::HTTP_OK,
             [],
             true
@@ -242,7 +264,7 @@ class ApiUserController extends AbstractController
      *      description="Token invalid"),
      *
      * * @OA\Response(
-     *      response="401",
+     *      response="400",
      *      description="Customer invalid"),
      *
      * @OA\Response(
@@ -340,12 +362,20 @@ class ApiUserController extends AbstractController
      *      description="Product not found"),
      *
      * @param User $user
+     * @param Security $security
      * @return Response
+     * @throws CustomerInvalidException
      */
-    #[
-        Route('/{id}', name: 'app_api_user_item_delete', methods: ['DELETE'])]
-    public function deleteUser(User $user): Response
+    #[Route('/{id}', name: 'app_api_user_item_delete', methods: ['DELETE'])]
+    public function deleteUser(
+        User $user,
+        Security $security
+    ): Response
     {
+        if ($user->getCustomer() !== $security->getUser()){
+            throw new CustomerInvalidException("Customer invalid");
+        }
+
         $this->entityManager->remove($user);
         $this->entityManager->flush();
 

@@ -1,8 +1,11 @@
 nelmio_api_doc:
     documentation:
+        servers:
+            - url: http://127.0.0.1:8000/
+              description: API
         info:
             title: Bilemo
-            description: API
+            description: Api Bilemo
             version: 1.0.0
         components:
             securitySchemes:
