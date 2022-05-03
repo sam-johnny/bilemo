@@ -26,12 +26,26 @@ use OpenApi\Annotations as OA;
  * )
  *
  * @Hateoas\Relation(
+ *      "modify",
+ *      href = @Hateoas\Route(
+ *          "app_api_user_item_put",
+ *          parameters = { "id" = "expr(object.getId())" },
+ *          absolute = true
+ *      )
+ * )
+ *
+ * @Hateoas\Relation(
  *      "delete",
  *      href = @Hateoas\Route(
  *          "app_api_user_item_delete",
  *          parameters = { "id" = "expr(object.getId())" },
  *          absolute = true
  *      )
+ * )
+ *
+ * @Hateoas\Relation(
+ *     "customer",
+ *     embedded = @Hateoas\Embedded("expr(object.getCustomer())")
  * )
  */
 class User
@@ -80,7 +94,6 @@ class User
      * @var
      */
     #[ORM\ManyToOne(targetEntity: Customer::class, inversedBy: 'users')]
-    #[Serializer\Expose]
     private $customer;
 
     public function getId(): ?int

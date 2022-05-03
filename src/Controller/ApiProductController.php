@@ -5,12 +5,15 @@ namespace App\Controller;
 use App\Entity\Product;
 use App\Helper\Paginated\PaginatedHelper;
 use App\Repository\ProductRepository;
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use OpenApi\Annotations as OA;
 use JMS\Serializer\SerializerInterface;
+use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 
 #[Route('/api/product')]
 class ApiProductController extends AbstractController
@@ -37,26 +40,32 @@ class ApiProductController extends AbstractController
      *     security={"bearer"},
      * ),
      *
-     *  @OA\Response(
+     * @OA\Response(
      *      response="200",
      *      description="successful operation",
      *      @OA\JsonContent(type="array", @OA\Items(ref=@Nelmio\ApiDocBundle\Annotation\Model(type=Product::class)))
      *      ),
      *
-     *  @OA\Response(
+     * @OA\Response(
      *      response="401",
      *      description="Token invalid"),
      *
-     *  @OA\Response(
+     * @OA\Response(
      *      response="404",
      *      description="Product not found"),
      *
      * @param PaginatedHelper $paginatedHelper
      * @param Request $request
+     * @param CacheInterface $cache
      * @return Response
+     * @throws InvalidArgumentException
      */
     #[Route(name: 'app_api_product_collection_get', methods: ['GET'])]
-    public function collectionProducts(PaginatedHelper $paginatedHelper, Request $request): Response
+    public function collectionProducts(
+        PaginatedHelper $paginatedHelper,
+        Request $request,
+        CacheInterface $cache
+    ): Response
     {
 
         $paginatedCollection = $paginatedHelper->paginatedCollection(
@@ -64,7 +73,10 @@ class ApiProductController extends AbstractController
             $request->attributes->get('_route')
         );
 
-        $product = $this->serializer->serialize($paginatedCollection, 'json');
+        $product = $cache->get('products_list', function (ItemInterface $item) use ($paginatedCollection) {
+            $item->expiresAfter(3600);
+            return $this->serializer->serialize($paginatedCollection, 'json');
+        } );
 
         return new Response(
             $product,
@@ -95,34 +107,43 @@ class ApiProductController extends AbstractController
      *  )
      * ),
      *
-     *  @OA\Response(
+     * @OA\Response(
      *      response="200",
      *      description="successful operation",
      *      @OA\JsonContent(type="array", @OA\Items(ref=@Nelmio\ApiDocBundle\Annotation\Model(type=Product::class)))
      *      ),
      *
-     *  @OA\Response(
+     * @OA\Response(
      *      response="401",
      *      description="Token invalid"),
      *
-     *  @OA\Response(
+     * @OA\Response(
      *      response="404",
      *      description="Product not found"),
      *
      *
      *
      * @param Product $product
+     * @param CacheInterface $cache
      * @return Response
+     * @throws InvalidArgumentException
      */
     #[Route('/{id}', name: 'app_api_product_item_get', methods: ['GET'])]
-    public function itemProduct(Product $product): Response
+    public function itemProduct(
+        Product $product,
+        CacheInterface $cache
+    ): Response
     {
-        $productJson = $this->serializer->serialize($product, 'json');
+        $product = $cache->get('product_item'. $product->getId(), function (ItemInterface $item) use ($product){
+            $item->expiresAfter(3600);
+            return $this->serializer->serialize($product, 'json');
+        });
 
-        return new Response(
-            $productJson,
+         return new Response(
+            $product,
             Response::HTTP_OK,
             ['Content-Type' => 'application/json']
         );
+
     }
 }

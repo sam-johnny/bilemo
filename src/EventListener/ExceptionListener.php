@@ -44,11 +44,11 @@ class ExceptionListener
                 $response->headers->replace($exception->getHeaders());
                 $response->setContent(json_encode(['code' => $exception->getStatusCode(), 'message' => $message]));
                 break;
+            case $exception instanceof CustomerInvalidException:
             case $exception instanceof RuntimeException:
                 $response->setContent(json_encode(['code' => 400, 'message' => $message]));
                 $response->setStatusCode(Response::HTTP_BAD_REQUEST);
                 break;
-            case $exception instanceof CustomerInvalidException:
             case $exception instanceof JWTEncodeFailureException:
             case $exception instanceof JWTDecodeFailureException:
                 $response->setContent(json_encode(['code' => 401, 'message' => $message]));
