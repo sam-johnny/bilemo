@@ -148,6 +148,13 @@ class AppFixtures extends Fixture
 
         }
 
+        $customer = new Customer();
+        $customer ->setName('user01')
+            ->setEmail('user01@hotmail.fr')
+            ->setPassword(password_hash("password",PASSWORD_BCRYPT));
+        $manager->persist($customer);
+
+
         for ($c = 0; $c < 6; $c++){
             $customer = new Customer();
             $customer ->setName($faker->firstName)

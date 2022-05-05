@@ -26,6 +26,18 @@ services:
         tags:
             - { name: doctrine.event_listener, event: prePersist }
 
+    App\EventListener\CachePostPersistListener:
+        tags:
+            - { name: doctrine.event_listener, event: postPersist }
+
+    App\EventListener\CachePostRemoveListener:
+        tags:
+            - { name: doctrine.event_listener, event: postRemove }
+
+    App\EventListener\CachePostUpdateListener:
+        tags:
+            - { name: doctrine.event_listener, event: postUpdate }
+
     App\EventListener\JWTCreatedListener:
         arguments: [ '@request_stack' ]
         tags:
