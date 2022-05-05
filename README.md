@@ -1,12 +1,10 @@
 # BileMo
 Project 7 - API REST BileMo - OCR
 
-[![SymfonyInsight](https://insight.symfony.com/projects/36963c26-561c-48dc-82c0-05b48bca9a6f/big.svg)](https://insight.symfony.com/projects/36963c26-561c-48dc-82c0-05b48bca9a6f)
-
 <h3>Documentation en ligne :</h3>
 <p>Une interface pour documenter l'API et teser les différentes méthodes a été réalisée à l'aide de NelmioApiDocBundle.</p>
 
-![frontend](https://github.com/sam-johnny/bilemo/blob/main/public/doc/apidoc.PNG)
+![ScreenShot](https://github.com/sam-johnny/bilemo/blob/main/public/doc/apidoc.PNG)
 
 <h3>Documentation</h3>
 <p>L'ensemble du code source a été commenté. L'utilsation de PhpDocBlocker a permis de générer une documentation claire et précise.</p>
