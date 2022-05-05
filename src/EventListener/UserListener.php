@@ -1,4 +1,5 @@
 <?php
+
 namespace App\EventListener;
 
 use App\Entity\User;
@@ -22,6 +23,7 @@ class UserListener
         $entity = $args->getEntity();
 
         if ($entity instanceof User) {
+
             $user = $this->tokenStorage->getToken()->getUser();
 
             $entity->setCustomer($user);
