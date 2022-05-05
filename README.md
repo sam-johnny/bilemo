@@ -4,7 +4,7 @@ Project 7 - API REST BileMo - OCR
 <h3>Documentation en ligne :</h3>
 <p>Une interface pour documenter l'API et teser les différentes méthodes a été réalisée à l'aide de NelmioApiDocBundle.</p>
 
-![ScreenShot](https://github.com/sam-johnny/bilemo/public/doc/apidoc.PNG)
+![ScreenShot](apidoc.PNG)
 
 <h3>Documentation</h3>
 <p>L'ensemble du code source a été commenté. L'utilsation de PhpDocBlocker a permis de générer une documentation claire et précise.</p>
