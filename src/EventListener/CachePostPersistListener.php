@@ -35,8 +35,8 @@ class CachePostPersistListener
         $entity = $args->getEntity();
 
         if ($entity instanceof User) {
-            $this->cache->delete('user_collection');
-            $this->cache->delete('user_collection');
+            $this->cache->delete('user_item' . $entity->getId());
+            $this->cache->delete('users_collection');
         }
     }
 }

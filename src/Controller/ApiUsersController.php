@@ -22,9 +22,8 @@ use Symfony\Component\Serializer\SerializerInterface as SerializerSymfony;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
-
-#[Route('/api/user')]
-class ApiUserController extends AbstractController
+#[Route('/api/users')]
+class ApiUsersController extends AbstractController
 {
     private UserRepository $repository;
     private EntityManagerInterface $entityManager;
@@ -87,7 +86,7 @@ class ApiUserController extends AbstractController
             $request->attributes->get('_route')
         );
 
-        $users = $cache->get('users_list', function (ItemInterface $item) use ($paginatedCollection) {
+        $users = $cache->get('users_collection', function (ItemInterface $item) use ($paginatedCollection) {
             $item->expiresAfter(3600);
             return $this->serializer->serialize($paginatedCollection, 'json');
         });

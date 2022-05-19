@@ -15,8 +15,8 @@ use JMS\Serializer\SerializerInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
-#[Route('/api/product')]
-class ApiProductController extends AbstractController
+#[Route('/api/products')]
+class ApiProductsController extends AbstractController
 {
     private ProductRepository $repository;
     private SerializerInterface $serializer;
