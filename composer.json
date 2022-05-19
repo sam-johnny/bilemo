@@ -38,7 +38,7 @@
         "symfony/var-exporter": "6.0.*",
         "symfony/yaml": "6.0.*",
         "willdurand/hateoas-bundle": "^2.4",
-        "zircote/swagger-php": "^4.3"
+        "zircote/swagger-php": "^4.4"
     },
     "config": {
         "allow-plugins": {
