@@ -71,4 +71,6 @@ Project 7 - API REST Bilemo
 </ul>
 
 <h3>Vous êtes fin prêt pour tester votre API!</h3>
+
 <p>Pour afficher la doucmentation en ligne et tester l'API rendez-vous à l'adresse suivante votre navigateur : <em>http://localhost/api/doc</em></p>
+
