@@ -51,9 +51,7 @@ Project 7 - API REST Bilemo
   </code></pre>
 <li><b>Etape 5.2 :</b> Générer vos clés pour l'utilisation de JWT Token</li>
   <pre><code>
-    $ mkdir -p config/jwt
-    $ openssl genpkey -out config/jwt/private.pem -aes256 -algorithm rsa -pkeyopt rsa_keygen_bits:4096
-    $ openssl pkey -in config/jwt/private.pem -out config/jwt/public.pem -pubout
+    $ php bin/console lexik:jwt:generate-keypair
   </code></pre>
   <li><b>Etape 5.3 :</b> Renseigner vos paramètres de configuration dans votre ficher .env</li>
   <pre><code>
@@ -72,5 +70,5 @@ Project 7 - API REST Bilemo
 
 <h3>Vous êtes fin prêt pour tester votre API!</h3>
 
-<p>Pour afficher la doucmentation en ligne et tester l'API rendez-vous à l'adresse suivante votre navigateur : <em>http://localhost/api/doc</em></p>
+<p>Pour afficher la documentation en ligne et tester l'API rendez-vous à l'adresse suivante votre navigateur : <em>http://localhost/api/doc</em></p>
 
