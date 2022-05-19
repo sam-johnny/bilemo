@@ -37,7 +37,7 @@ class CachePostUpdateListener
 
         if ($entity instanceof User) {
             $this->cache->delete('user_item' . $entity->getId());
-            $this->cache->delete('user_collection');
+            $this->cache->delete('users_collection');
 
         }
     }

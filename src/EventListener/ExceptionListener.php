@@ -43,7 +43,6 @@ class ExceptionListener
                 $response->headers->replace($exception->getHeaders());
                 $response->setContent(json_encode(['code' => $exception->getStatusCode(), 'message' => $message]));
                 break;
-            case $exception instanceof CustomerInvalidException:
             case $exception instanceof RuntimeException:
                 $response->setContent(json_encode(['code' => 400, 'message' => $message]));
                 $response->setStatusCode(Response::HTTP_BAD_REQUEST);
@@ -53,6 +52,7 @@ class ExceptionListener
                 $response->setContent(json_encode(['code' => 401, 'message' => $message]));
                 $response->setStatusCode(Response::HTTP_UNAUTHORIZED);
                 break;
+            case $exception instanceof CustomerInvalidException:
             case $exception instanceof ForbiddenException:
                 $response->setContent(json_encode(['code' => 403, 'message' => $message]));
                 $response->setStatusCode(Response::HTTP_FORBIDDEN);

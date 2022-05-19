@@ -11,7 +11,7 @@ Project 7 - API REST Bilemo
 <ul>
 </ul>
 <li>L'API REST BileMo a été développé en PHP via le framework Symfony 6</li>
-<li>L'utilisation de librairy telles que FosRestBundle, JMSSerializer et Hateoas ont été utilisées pour gérer l'ensemble des contraintes associées à la création d'une API REST.
+<li>L'utilisation de librairy telles que JMSSerializer et Hateoas ont été utilisées pour gérer l'ensemble des contraintes associées à la création d'une API REST.
 
 <hr>
 <h2>Installation</h2>
@@ -71,4 +71,6 @@ Project 7 - API REST Bilemo
 </ul>
 
 <h3>Vous êtes fin prêt pour tester votre API!</h3>
-<p>Pour afficher la doucmentation en ligne et tester l'API rendez-vous à l'adresse suivante votre navigateur : <em>http://localhost/doc/api</em></p>
+
+<p>Pour afficher la doucmentation en ligne et tester l'API rendez-vous à l'adresse suivante votre navigateur : <em>http://localhost/api/doc</em></p>
+
