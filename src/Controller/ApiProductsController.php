@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Product;
 use App\Helper\Paginated\PaginatedHelper;
 use App\Repository\ProductRepository;
+use Nelmio\ApiDocBundle\Annotation\Security;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -32,12 +33,10 @@ class ApiProductsController extends AbstractController
      * Collection of products
      *
      * @OA\Get(
-     *     path="/api/product",
-     *     tags={"product"},
+     *     path="/api/products",
      *     operationId="collectionProducts",
      *     summary="Find list of products",
-     *     description="Returns a list of products",
-     *     security={"bearer"},
+     *     description="Returns a list of products"
      * ),
      *
      * @OA\Response(
@@ -53,6 +52,9 @@ class ApiProductsController extends AbstractController
      * @OA\Response(
      *      response="404",
      *      description="Product not found"),
+     *
+     * @OA\Tag(name="products")
+     * @Security(name="Bearer")
      *
      * @param PaginatedHelper $paginatedHelper
      * @param Request $request
@@ -89,12 +91,10 @@ class ApiProductsController extends AbstractController
      * Find product by ID
      *
      * @OA\Get(
-     *     path="/api/product/{id}",
-     *     tags={"product"},
+     *     path="/api/products/{id}",
      *     operationId="itemProduct",
      *     summary="Find product by ID",
      *     description="Returns product",
-     *     security={"bearer"},
      *     @OA\Parameter(
      *      name="id",
      *      in="path",
@@ -121,7 +121,8 @@ class ApiProductsController extends AbstractController
      *      response="404",
      *      description="Product not found"),
      *
-     *
+     * @OA\Tag(name="products")
+     * @Security(name="Bearer")
      *
      * @param Product $product
      * @param CacheInterface $cache
