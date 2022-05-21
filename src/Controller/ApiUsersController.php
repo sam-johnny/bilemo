@@ -46,11 +46,9 @@ class ApiUsersController extends AbstractController
      *
      * @OA\Get(
      *     path="/api/user",
-     *     tags={"user"},
      *     operationId="collectionUsers",
      *     summary="Find list of users",
      *     description="Returns a list of users",
-     *     security={"bearer"}
      * ),
      *
      * @OA\Response(
@@ -66,6 +64,9 @@ class ApiUsersController extends AbstractController
      * @OA\Response(
      *      response="404",
      *      description="Product not found"),
+     *
+     * @OA\Tag(name="users")
+     * @\Nelmio\ApiDocBundle\Annotation\Security(name="Bearer")
      *
      * @param PaginatedHelper $paginatedHelper
      * @param Request $request
@@ -104,11 +105,9 @@ class ApiUsersController extends AbstractController
      *
      * @OA\Get(
      *     path="/api/user/{id}",
-     *     tags={"user"},
      *     operationId="itemUsers",
      *     summary="Find user by ID",
      *     description="Returns a single user",
-     *     security={"bearer"},
      *     @OA\Parameter(
      *      name="id",
      *      in="path",
@@ -135,6 +134,9 @@ class ApiUsersController extends AbstractController
      *      response="404",
      *      description="Product not found"),
      *
+     * @OA\Tag(name="users")
+     * @\Nelmio\ApiDocBundle\Annotation\Security(name="Bearer")
+     *
      * @param User $user
      * @param CacheInterface $cache
      * @return JsonResponse
@@ -142,11 +144,11 @@ class ApiUsersController extends AbstractController
      */
     #[Route('/{id}', name: 'app_api_user_item_get', methods: ['GET'])]
     public function itemUser(
-        User $user,
+        User           $user,
         CacheInterface $cache
     ): JsonResponse
     {
-        $user = $cache->get('user_item'. $user->getId(), function (ItemInterface $item) use ($user) {
+        $user = $cache->get('user_item' . $user->getId(), function (ItemInterface $item) use ($user) {
             $item->expiresAfter(3600);
             return $this->serializer->serialize($user, 'json');
         });
@@ -164,11 +166,9 @@ class ApiUsersController extends AbstractController
      *
      * @OA\Post(
      *     path="/api/user",
-     *     tags={"user"},
      *     operationId="addUser",
      *     summary="Add new user",
      *     description="Add new user",
-     *     security={"bearer"},
      *      @OA\Parameter(
      *      name="id",
      *      in="path",
@@ -198,6 +198,10 @@ class ApiUsersController extends AbstractController
      * @OA\Response(
      *      response="500",
      *      description="Malformed JSON"),
+     *
+     * @OA\Tag(name="users")
+     * @\Nelmio\ApiDocBundle\Annotation\Security(name="Bearer")
+     *
      *
      * @param Request $request
      * @param ValidatorInterface $validator
@@ -244,11 +248,9 @@ class ApiUsersController extends AbstractController
      *
      * @OA\Put(
      *     path="/api/user/{id}",
-     *     tags={"user"},
      *     operationId="updateUser",
      *     summary="Update user",
      *     description="Update an existing user",
-     *     security={"bearer"}
      * ),
      *
      * @OA\Response(
@@ -273,6 +275,9 @@ class ApiUsersController extends AbstractController
      *      response="500",
      *      description="Malformed JSON"),
      *
+     * @OA\Tag(name="users")
+     * @\Nelmio\ApiDocBundle\Annotation\Security(name="Bearer")
+     *
      * @param User $user
      * @param Request $request
      * @param ValidatorInterface $validator
@@ -291,7 +296,7 @@ class ApiUsersController extends AbstractController
     ): JsonResponse
     {
 
-        if ($user->getCustomer() !== $security->getUser()){
+        if ($user->getCustomer() !== $security->getUser()) {
             throw new CustomerInvalidException("Customer invalid");
         }
 
@@ -328,11 +333,9 @@ class ApiUsersController extends AbstractController
      *
      * @OA\Delete(
      *     path="/api/user/{id}",
-     *     tags={"user"},
      *     operationId="deleteUser",
      *     summary="Delete user",
      *     description="delete user",
-     *     security={"bearer"},
      *     @OA\Parameter(
      *      name="id",
      *      in="path",
@@ -359,6 +362,9 @@ class ApiUsersController extends AbstractController
      *      response="404",
      *      description="Product not found"),
      *
+     * @OA\Tag(name="users")
+     * @\Nelmio\ApiDocBundle\Annotation\Security(name="Bearer")
+     *
      * @param User $user
      * @param Security $security
      * @return Response
@@ -366,11 +372,11 @@ class ApiUsersController extends AbstractController
      */
     #[Route('/{id}', name: 'app_api_user_item_delete', methods: ['DELETE'])]
     public function deleteUser(
-        User $user,
+        User     $user,
         Security $security
     ): Response
     {
-        if ($user->getCustomer() !== $security->getUser()){
+        if ($user->getCustomer() !== $security->getUser()) {
             throw new CustomerInvalidException("Customer invalid");
         }
 

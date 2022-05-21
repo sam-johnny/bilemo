@@ -7,14 +7,16 @@ nelmio_api_doc:
             title: Bilemo
             description: Api Bilemo
             version: 1.0.0
+        security:
+            - Bearer: []
         components:
             securitySchemes:
                 Bearer:
-                    type: http
+                    type: apiKey
+                    in: header
+                    name: Authorization
                     scheme: bearer
                     bearerFormat: JWT
-        security:
-            - Bearer: []
 
     areas: # to filter documented areas
         path_patterns:
