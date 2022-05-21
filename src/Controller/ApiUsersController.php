@@ -181,6 +181,23 @@ class ApiUsersController extends AbstractController
      *  )
      * ),
      *
+     * @OA\RequestBody(
+     *     required=true,
+     *     @OA\JsonContent(
+     *         example={
+     *             "lastname": "lastname",
+     *             "firstname": "firstname",
+     *              "email": "email@hotmail.fr"
+     *         },
+     *         @OA\Schema (
+     *              type="object",
+     *              @OA\Property(property="lastname", required=true, description="lastname", type="string"),
+     *              @OA\Property(property="firstname", required=true, description="firstname", type="string"),
+     *              @OA\Property(property="email", required=true, description="email", type="string"),
+     *         )
+     *     )
+     * )
+     *
      * @OA\Response(
      *      response="201",
      *      description="successful addition",
@@ -252,6 +269,23 @@ class ApiUsersController extends AbstractController
      *     summary="Update user",
      *     description="Update an existing user",
      * ),
+     *
+     * @OA\RequestBody(
+     *     required=true,
+     *     @OA\JsonContent(
+     *         example={
+     *             "lastname": "lastname",
+     *             "firstname": "firstname",
+     *              "email": "email@hotmail.fr"
+     *         },
+     *         @OA\Schema (
+     *              type="object",
+     *              @OA\Property(property="lastname", required=true, description="lastname", type="string"),
+     *              @OA\Property(property="firstname", required=true, description="firstname", type="string"),
+     *              @OA\Property(property="email", required=true, description="email", type="string"),
+     *         )
+     *     )
+     * )
      *
      * @OA\Response(
      *      response="200",
